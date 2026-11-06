@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University Results Data Mart</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f1f5f9;color:#1e293b}
+header{background:#172554;color:white;padding:25px;text-align:center}
+header p{color:#cbd5e1}
+.container{max-width:1100px;margin:25px auto;padding:15px}
+.hero{background:linear-gradient(120deg,#1d4ed8,#0f766e);color:white;padding:25px;border-radius:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin:20px 0}
+.card,.panel{background:white;padding:20px;border-radius:10px;box-shadow:0 3px 10px #0001}
+.card h3{font-size:14px;color:#64748b}
+.card h2{color:#2563eb}
+.panel{margin-bottom:20px}
+h2{color:#1e40af}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+label{display:block;margin:10px 0 6px;font-weight:bold;font-size:14px}
+input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:6px}
+button{background:#2563eb;color:white;padding:11px 16px;border:0;border-radius:6px;margin:12px 5px 5px 0;cursor:pointer}
+button:hover{background:#1d4ed8}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#dbeafe}
+.table-wrap{overflow-x:auto}
+.pass{color:green;font-weight:bold}
+.fail{color:red;font-weight:bold}
+.bar{height:15px;background:#2563eb;border-radius:5px}
+.barbg{background:#e2e8f0;border-radius:5px;margin:8px 0 18px}
+.box{padding:15px;margin:8px 0;background:#eff6ff;border-radius:8px;text-align:center}
+footer{text-align:center;padding:20px;color:#64748b}
+small{color:#64748b}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>University Examination Results Data Mart</h1>
+<p>Dimensional Data-Mart Model | Student Performance Analytics</p>
+</header>
+
+<div class="container">
+
+<div class="hero">
+<h2 style="color:white">Examination Results Dashboard</h2>
+<p>Analyze student marks, grades, pass percentage and department-wise performance.</p>
+</div>
+
+<div class="cards">
+<div class="card"><h3>Total Students</h3><h2 id="total">6</h2></div>
+<div class="card"><h3>Average Marks</h3><h2 id="average">73.3%</h2></div>
+<div class="card"><h3>Pass Percentage</h3><h2 id="passRate">83.3%</h2></div>
+<div class="card"><h3>Failed Students</h3><h2 id="failed">1</h2></div>
+</div>
+
+<div class="panel">
+<h2>Search and Filter Results</h2>
+<div class="filters">
+<div>
+<label>Student Name or ID</label>
+<input id="search" placeholder="Enter name or ID">
+</div>
+<div>
+<label>Department</label>
+<select id="dept">
+<option>All</option><option>CSE</option><option>ECE</option><option>IT</option>
+</select>
+</div>
+<div>
+<label>Semester</label>
+<select id="sem">
+<option>All</option><option>1</option><option>2</option><option>3</option>
+</select>
+</div>
+<div>
+<label>Result Status</label>
+<select id="status">
+<option>All</option><option>Pass</option><option>Fail</option>
+</select>
+</div>
+</div>
+<button onclick="render()">Search Results</button>
+<button onclick="resetFilters()">Reset</button>
+<button onclick="exportCSV()">Download CSV</button>
+</div>
+
+<div class="panel">
+<h2>Student Examination Records</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Student ID</th><th>Name</th><th>Department</th>
+<th>Semester</th><th>Subject</th><th>Marks</th>
+<th>Grade</th><th>Status</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
+</table>
+</div>
+<p id="count"><small>Sample records</small></p>
+</div>
+
+<div class="panel">
+<h2>Department-wise Pass Percentage</h2>
+<div id="chart"></div>
+</div>
+
+<div class="panel">
+<h2>Dimensional Data-Mart Architecture</h2>
+<div class="box"><b>Data Sources</b><p>Student Records | Subjects | Examination Marks</p></div>
+<div style="text-align:center">↓</div>
+<div class="box"><b>ETL Process</b><p>Extract → Transform → Load</p></div>
+<div style="text-align:center">↓</div>
+<div class="box"><b>Fact Table: Examination Results</b><p>Marks | Total Marks | Grade | Pass/Fail</p></div>
+<div style="text-align:center">↓</div>
+<div class="filters">
+<div class="box"><b>Student Dimension</b><p>Student ID, Name</p></div>
+<div class="box"><b>Subject Dimension</b><p>Subject ID, Name</p></div>
+<div class="box"><b>Department Dimension</b><p>Department ID, Name</p></div>
+<div class="box"><b>Time Dimension</b><p>Year, Semester, Date</p></div>
+</div>
+<div style="text-align:center">↓</div>
+<div class="box"><b>Analytics Dashboard</b><p>Reports | Grades | Pass Percentage</p></div>
+</div>
+
+<p><small>Note: This is a frontend prototype with sample data. A real data mart requires a database and ETL process.</small></p>
+</div>
+
+<footer>University Examination Results Data Mart | Academic Project</footer>
+
+<script>
+const students=[
+{id:"ST101",name:"Anjali",dept:"CSE",sem:1,subject:"DBMS",marks:85},
+{id:"ST102",name:"Rahul",dept:"CSE",sem:1,subject:"DBMS",marks:72},
+{id:"ST103",name:"Priya",dept:"ECE",sem:2,subject:"Networks",marks:91},
+{id:"ST104",name:"Kiran",dept:"ECE",sem:2,subject:"Networks",marks:32},
+{id:"ST105",name:"Sneha",dept:"IT",sem:3,subject:"Data Mining",marks:78},
+{id:"ST106",name:"Arjun",dept:"IT",sem:3,subject:"Data Mining",marks:82}
+];
+
+function grade(m){
+if(m>=90)return "A+";
+if(m>=80)return "A";
+if(m>=70)return "B";
+if(m>=60)return "C";
+if(m>=40)return "D";
+return "F";
+}
+
+function result(m){return m>=40?"Pass":"Fail";}
+
+function getFiltered(){
+const q=document.getElementById("search").value.toLowerCase();
+const d=document.getElementById("dept").value;
+const s=document.getElementById("sem").value;
+const st=document.getElementById("status").value;
+
+return students.filter(x=>
+(x.name.toLowerCase().includes(q)||x.id.toLowerCase().includes(q))&&
+(d==="All"||x.dept===d)&&
+(s==="All"||String(x.sem)===s)&&
+(st==="All"||result(x.marks)===st)
+);
+}
+
+function render(){
+const data=getFiltered();
+document.getElementById("table").innerHTML=data.map(x=>`
+<tr>
+<td>${x.id}</td>
+<td>${x.name}</td>
+<td>${x.dept}</td>
+<td>${x.sem}</td>
+<td>${x.subject}</td>
+<td>${x.marks}</td>
+<td>${grade(x.marks)}</td>
+<td class="${result(x.marks)==="Pass"?"pass":"fail"}">${result(x.marks)}</td>
+</tr>`).join("");
+
+document.getElementById("count").textContent=
+"Showing "+data.length+" of "+students.length+" sample records.";
+
+const passed=data.filter(x=>x.marks>=40).length;
+const avg=data.length?data.reduce((a,x)=>a+x.marks,0)/data.length:0;
+
+document.getElementById("total").textContent=data.length;
+document.getElementById("average").textContent=avg.toFixed(1)+"%";
+document.getElementById("passRate").textContent=
+(data.length?passed/data.length*100:0).toFixed(1)+"%";
+document.getElementById("failed").textContent=data.length-passed;
+
+renderChart(data);
+}
+
+function renderChart(data){
+const departments=["CSE","ECE","IT"];
+document.getElementById("chart").innerHTML=departments.map(d=>{
+const rows=data.filter(x=>x.dept===d);
+const passed=rows.filter(x=>x.marks>=40).length;
+const rate=rows.length?passed/rows.length*100:0;
+
+return `<p><b>${d}</b> — ${rate.toFixed(1)}% (${passed}/${rows.length} passed)</p>
+<div class="barbg"><div class="bar" style="width:${rate}%"></div></div>`;
+}).join("");
+}
+
+function resetFilters(){
+document.getElementById("search").value="";
+document.getElementById("dept").value="All";
+document.getElementById("sem").value="All";
+document.getElementById("status").value="All";
+render();
+}
+
+function exportCSV(){
+const data=getFiltered();
+const rows=[
+["Student ID","Name","Department","Semester","Subject","Marks","Grade","Status"],
+...data.map(x=>[x.id,x.name,x.dept,x.sem,x.subject,x.marks,grade(x.marks),result(x.marks)])
+];
+const csv=rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="university_results.csv";
+a.click();
+URL.revokeObjectURL(url);
+}
+
+render();
+</script>
+
+</body>
+</html>
